@@ -25,7 +25,7 @@ class AuthorOrAdminOrReadOnly(BasePermission):
                 or request.user.is_staff)
 
 
-class IsAuthorOnly (BasePermission):
+class IsAuthorOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
 
         return obj.author == request.user

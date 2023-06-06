@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+
 from core.models import CreatedModel
 
 User = get_user_model()
@@ -29,7 +30,6 @@ class Tag(models.Model):
 
 class Recipe(CreatedModel):
     name = models.CharField(
-        primary_key=True,
         verbose_name='Название рецепта',
         max_length=250,
     )
@@ -37,7 +37,7 @@ class Recipe(CreatedModel):
         User,
         verbose_name='Автор рецепта',
         related_name='recipes',
-        on_delete = models.CASCADE,
+        on_delete=models.CASCADE,
     )
     image = models.ImageField(
         verbose_name='Фото рецепта',
@@ -109,22 +109,22 @@ class ShoppingCart(models.Model):
 
 class RecipeIngredient(models.Model):
     """Промежуточный класс рецептов и ингредиентов."""
-    recipe=models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE
     )
-    ingredient=models.ForeignKey(
+    ingredient = models.ForeignKey(
         Ingredient,
         related_name='recipe_infredient',
         on_delete=models.CASCADE,
     )
-    amount=models.PositiveIntegerField(default=1)
+    amount = models.PositiveIntegerField(default=1)
 
 
 class RecipeTag(models.Model):
     """Промежуточный класс рецептов и тэгов."""
-    recipe=models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE

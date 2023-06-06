@@ -1,23 +1,25 @@
-from rest_framework.viewsets import ModelViewSet
-from .serializers import (RecipeSerializer, ShoppingCartSerialiser,
-                          TagSerializer, IngredientSerializer, FavoriteSerialiser,
-                          CustomUserSerializer, SubscribeSerializer)
-from recipes.models import Recipe, Tag, Ingredient, ShoppingCart, Favorite, RecipeIngredient
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
-from .permissions import ReadOrAdminOnly, AuthorOrAdminOrReadOnly, IsAuthorOnly
-from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
-from .mixins import ListRetrieveViewSet, CreateDestroyViewSet, ListViewSet
-from .filters import RecipeFilter
-from rest_framework import filters
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import filters, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from .pagination import CustomPagination
+from rest_framework.viewsets import ModelViewSet
+
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import Subscribe
-from collections import Counter
+from .filters import RecipeFilter
+from .mixins import CreateDestroyViewSet, ListRetrieveViewSet, ListViewSet
+from .pagination import CustomPagination
+from .permissions import AuthorOrAdminOrReadOnly, ReadOrAdminOnly, IsAuthorOnly
+from .serializers import (CustomUserSerializer, FavoriteSerialiser,
+                          IngredientSerializer, RecipeSerializer,
+                          ShoppingCartSerialiser, SubscribeSerializer,
+                          TagSerializer)
+
 
 User = get_user_model()
 
@@ -29,21 +31,22 @@ class RecipesViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     filterset_class = RecipeFilter
 
-
     def perform_create(self, serializer):
 
         return serializer.save(author=self.request.user)
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=(IsAuthorOnly,))
     def download_shopping_cart(self, request):
         """Дополнительный эндпойнт: загрузить список покупок"""
         response = HttpResponse(content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
+        response['Content-Disposition'] = (
+            'attachment;filename="shopping_cart.txt"'
+        )
         response.write(f'Я {request.user}\n')
         response.write('И это мой список покупок:\n \n')
 
         recipe_id = ShoppingCart.objects.values_list('recipe_id')
-        empty_dict={}
+        empty_dict = {}
         for recipe in recipe_id:
             ing_amount = RecipeIngredient.objects.filter(
                     recipe_id__in=recipe).values_list(
@@ -71,32 +74,47 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:
             recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-            if ShoppingCart.objects.filter(recipe_id=recipe.id,
-                                 owner_id=self.request.user.id).exists():
+            if ShoppingCart.objects.filter(
+                recipe_id=recipe.id,
+                owner_id=self.request.user.id
+            ).exists():
 
-                return Response({'Errors': 'Этот рецепт уже есть в списке покупок'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Errors': 'Этот рецепт уже есть в списке покупок'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             serializer.save(recipe_id=recipe.id, owner_id=self.request.user.id)
 
-            return Response({'Message': 'рецепт добавлен в список'}, status=status.HTTP_201_CREATED)
+            return Response({'Message': 'рецепт добавлен в список'},
+                            status=status.HTTP_201_CREATED)
 
-        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     @action(methods=['delete'], detail=False)
     def delete(self, request, recipe_id):
         if request.user.is_authenticated:
             recipe = get_object_or_404(Recipe, pk=recipe_id)
-            shopping_cart = ShoppingCart.objects.filter(recipe_id=recipe.id,
-                                 owner_id=self.request.user.id)
+            shopping_cart = ShoppingCart.objects.filter(
+                recipe_id=recipe.id,
+                owner_id=self.request.user.id)
             if not shopping_cart:
 
-                return Response({'Errors': 'Этого рецепта нет в вашем списке'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Errors': 'Этого рецепта нет в вашем списке'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             shopping_cart.delete()
 
-            return Response({'Message': 'рецепт успешно удален из списка'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({
+                'Message': 'рецепт успешно удален из списка'},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
-        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
 
 class FavoriteViewSet(CreateDestroyViewSet):
@@ -112,18 +130,25 @@ class FavoriteViewSet(CreateDestroyViewSet):
     def delete(self, request, recipe_id):
         if request.user.is_authenticated:
             recipe = get_object_or_404(Recipe, pk=recipe_id)
-            favorite = Favorite.objects.filter(recipe_id=recipe.id,
-                                 owner_id=self.request.user.id)
+            favorite = Favorite.objects.filter(
+                recipe_id=recipe.id,
+                owner_id=self.request.user.id)
             if not favorite:
 
-                return Response({'Errors': 'Этого рецепта нет в ваших подписках'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Errors': 'Этого рецепта нет в ваших подписках'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             favorite.delete()
 
-            return Response({'Message': 'рецепт успешно удален из избранного'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({
+                'Message': 'рецепт успешно удален из избранного'},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
-        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
 
 class TagsViewSet(ListRetrieveViewSet):
@@ -142,12 +167,13 @@ class IngredientsViewSet(ListRetrieveViewSet):
 
 class SubscriptionsViewSet(ListViewSet):
     """Список авторов с рецептами, на котрых подписан юзер"""
-    serializer_class=CustomUserSerializer
+    serializer_class = CustomUserSerializer
     pagination_class = CustomPagination
+    permission_classes = (IsAuthorOnly, )
 
     def get_queryset(self):
 
-            return User.objects.filter(following__user=self.request.user)
+        return User.objects.filter(following__user=self.request.user)
 
 
 class SubscribeViewSet(CreateDestroyViewSet):
@@ -168,17 +194,25 @@ class SubscribeViewSet(CreateDestroyViewSet):
         if request.user.is_authenticated:
             author = get_object_or_404(User, pk=user_id)
             subscribe = Subscribe.objects.filter(author_id=author.id,
-                                 user=request.user)
+                                                 user=request.user)
             if not author:
 
-                return Response({'Errors': 'Такого автора не существует'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'Errors': 'Такого автора не существует'},
+                                status=status.HTTP_404_NOT_FOUND)
 
             if not subscribe:
 
-                return Response({'Errors': 'Вы не были подписаны на данного автора'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Errors': 'Вы не были подписаны на данного автора'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             subscribe.delete()
 
-            return Response({'Message': 'Вы успешно отписались от данного автора'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({
+                'Message': 'Вы успешно отписались от данного автора'},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
-        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'Errors': 'Пожалуйста, пройдите авторизацию'},
+                        status=status.HTTP_401_UNAUTHORIZED)

@@ -23,12 +23,12 @@ class CustomUser(AbstractUser):
         max_length=150,
     )
 
-class Meta:
+    class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-def __str__(self):
-    return f'{self.username}'
+    def __str__(self):
+        return f'{self.username}'
 
 
 class Subscribe(models.Model):

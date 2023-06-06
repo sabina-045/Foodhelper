@@ -1,5 +1,6 @@
 from django.contrib import admin
-from recipes.models import Recipe, Tag, Ingredient, Favorite, RecipeIngredient
+
+from recipes.models import Recipe, Tag, Ingredient, Favorite
 from users.models import CustomUser
 
 
@@ -19,7 +20,8 @@ class IngredientInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'author', 'text', 'created', 'image', 'cooking_time', 'favorited',)
+    list_display = ('pk', 'name', 'author', 'text', 'created',
+                    'image', 'cooking_time', 'favorited',)
     inlines = (
        TagInline, IngredientInline,
     )
@@ -28,11 +30,9 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     autocomplete_fields = ('author',)
 
-
     def favorited(self, obj):
 
         return Favorite.objects.filter(recipe=obj).count()
-
 
 
 @admin.register(CustomUser)
