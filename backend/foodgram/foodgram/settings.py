@@ -4,6 +4,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 
 
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,9 +93,9 @@ DJOSER = {
     # 'LOGIN_FIELD': 'email',
     # 'USER_ID_FIELD': 'user_id',
     'SERIALIZERS': {
-        'user_create': 'users.djoser_serializers.CustomUserCreateSerializer',
-        'user': 'users.djoser_serializers.CustomUserSerializer',
-        'current_user': 'users.djoser_serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
@@ -123,7 +124,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
     'PAGE_SIZE': 6,
 }
 
