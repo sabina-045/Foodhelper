@@ -7,6 +7,8 @@ from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import AllowAny
+from djoser.views import UserViewSet
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
@@ -16,9 +18,9 @@ from .mixins import CreateDestroyViewSet, ListRetrieveViewSet, ListViewSet
 from .pagination import CustomPagination
 from .permissions import AuthorOrAdminOrReadOnly, ReadOrAdminOnly, IsAuthorOnly
 from .serializers import (CustomUserSerializer, FavoriteSerialiser,
-                          IngredientSerializer, RecipeSerializer,
+                          IngredientSerializer, ReadRecipesSerializer,
                           ShoppingCartSerialiser, SubscribeSerializer,
-                          TagSerializer)
+                          TagSerializer, CustomUserSerializer)
 
 
 User = get_user_model()
@@ -26,7 +28,7 @@ User = get_user_model()
 
 class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    serializer_class = ReadRecipesSerializer
     permission_classes = (AuthorOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     filterset_class = RecipeFilter
@@ -160,7 +162,7 @@ class TagsViewSet(ListRetrieveViewSet):
 class IngredientsViewSet(ListRetrieveViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AuthorOrAdminOrReadOnly, )
+    permission_classes = (ReadOrAdminOnly, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
 

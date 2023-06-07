@@ -23,6 +23,8 @@ class CustomUser(AbstractUser):
         max_length=150,
     )
 
+    USERNAME_FIELD = 'username'
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'

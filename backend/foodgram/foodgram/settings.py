@@ -89,7 +89,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 DJOSER = {
-    # 'LOGIN_FIELD': 'email',
+    'LOGIN_FIELD': 'email',
     # 'USER_ID_FIELD': 'user_id',
     'SERIALIZERS': {
         'user_create': 'api.serializers.CustomUserCreateSerializer',
@@ -99,7 +99,7 @@ DJOSER = {
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
     },
-    # 'HIDE_USERS': False,
+    'HIDE_USERS': False,
 }
 
 LANGUAGE_CODE = 'en-us'

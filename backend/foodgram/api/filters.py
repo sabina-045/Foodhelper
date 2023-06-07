@@ -3,7 +3,6 @@ import django_filters
 from recipes.models import Recipe, Tag
 
 
-
 class RecipeFilter(django_filters.FilterSet):
 
     is_favorited = django_filters.NumberFilter(

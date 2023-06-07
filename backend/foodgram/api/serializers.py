@@ -44,7 +44,8 @@ class AuthorRecipesSerializer(ModelSerializer):
     def get_is_subscribed(self, obj):
         """Есть ли подписка на этого автора"""
         user = self.context['request'].user
-
+        if user.is_anonymous:
+            return False
         return Subscribe.objects.filter(
             user=user, author=obj).exists()
 
@@ -73,6 +74,8 @@ class ReadRecipesSerializer(ModelSerializer):
     def get_is_favorited(self, obj):
         """Добавлен ли рецепт в список избранного"""
         user = self.context['request'].user
+        if user.is_anonymous:
+            return False
         if Favorite.objects.filter(owner_id=user.pk,
                                    recipe_id=obj.pk).exists():
 
@@ -83,6 +86,10 @@ class ReadRecipesSerializer(ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         """Добавлен ли рецепт в список покупок"""
         user = self.context['request'].user
+        if user.is_anonymous:
+
+            return False
+
         if ShoppingCart.objects.filter(owner_id=user.id,
                                        recipe_id=obj.pk).exists():
 
@@ -231,6 +238,9 @@ class CustomUserSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         """Есть ли подписка на этого автора"""
         user = self.context['request'].user
+        if user.is_anonymous:
+
+            return False
 
         return Subscribe.objects.filter(
             user=user, author=obj).exists()
