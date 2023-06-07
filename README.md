@@ -31,7 +31,7 @@
     DB_NAME=postgres # имя базы данных
     POSTGRES_USER=postgres # логин для подключения к базе данных
     POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
-    DB_HOST=db # название сервиса (контейнера)
+    DB_HOST=localhost # название сервиса (контейнера)
     DB_PORT=5432 # порт для подключения к БД
     SECRET_KEY='n&l%385148polhtyn^##a1)icz@4zqj=rq&agdol^##zgl9(vs' # секретный ключ Django
 + переходим `cd foodgram/infra/`
