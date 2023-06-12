@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 from core.models import CreatedModel
 
+
 User = get_user_model()
 
 
@@ -75,7 +76,7 @@ class Recipe(CreatedModel):
 
 class Favorite(models.Model):
     """Класс избранных рецептов."""
-    owner = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE)
     recipe = models.ForeignKey(
@@ -87,15 +88,17 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='user_recipe'
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='favorite_user_recipe'
+            )
+        ]
 
 
 class ShoppingCart(models.Model):
     """Класс списка покупок пользователя."""
-    owner = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         verbose_name="Повелитель списка",
         on_delete=models.CASCADE
@@ -105,6 +108,14 @@ class ShoppingCart(models.Model):
         related_name='shopping_recipe',
         verbose_name="Рецепт для покупок",
         on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='shoppingcart_user_recipe'
+            )
+        ]
 
 
 class RecipeIngredient(models.Model):
@@ -121,6 +132,14 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='recipe_ingredient'
+            )
+        ]
+
 
 class RecipeTag(models.Model):
     """Промежуточный класс рецептов и тэгов."""
@@ -134,3 +153,11 @@ class RecipeTag(models.Model):
         related_name='recipe_tag',
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='recipe_tag'
+            )
+        ]

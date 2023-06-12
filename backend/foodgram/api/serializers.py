@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-
 from djoser.serializers import (UserCreateSerializer, UserSerializer,
                                 ValidationError)
 from rest_framework import serializers
@@ -59,11 +58,11 @@ class IngredientAmountSerializer(serializers.Serializer):
 
 class ReadRecipesSerializer(ModelSerializer):
     """Сериализ. для чтения рецептов"""
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
     author = AuthorRecipesSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    ingredients = IngredientSerializer(many=True, read_only=True)
+    ingredients = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -71,17 +70,24 @@ class ReadRecipesSerializer(ModelSerializer):
                   'is_favorited', 'is_in_shopping_cart',
                   'name', 'image', 'text', 'cooking_time',)
 
+    def get_ingredients(self, obj):
+        ingredients = RecipeIngredient.objects.filter(
+            recipe=obj).values_list(
+            'ingredient__name', 'ingredient__measurement_unit',
+            'amount'
+            )
+
+        return ingredients
+
     def get_is_favorited(self, obj):
         """Добавлен ли рецепт в список избранного"""
         user = self.context['request'].user
         if user.is_anonymous:
+
             return False
-        if Favorite.objects.filter(owner_id=user.pk,
-                                   recipe_id=obj.pk).exists():
 
-            return True
-
-        return False
+        return Favorite.objects.filter(user_id=user.pk,
+                                       recipe_id=obj.pk).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """Добавлен ли рецепт в список покупок"""
@@ -90,12 +96,8 @@ class ReadRecipesSerializer(ModelSerializer):
 
             return False
 
-        if ShoppingCart.objects.filter(owner_id=user.id,
-                                       recipe_id=obj.pk).exists():
-
-            return True
-
-        return False
+        return ShoppingCart.objects.filter(user_id=user.id,
+                                           recipe_id=obj.pk).exists()
 
 
 class RecipeSerializer(ModelSerializer):
@@ -112,23 +114,23 @@ class RecipeSerializer(ModelSerializer):
                   'name', 'image', 'text', 'cooking_time',)
 
     def create_tags(self, recipe, tags):
-        for tag in tags:
-            current_tag = get_object_or_404(Tag, id=tag.pk)
+        recipes_tags = (RecipeTag(
+            recipe=recipe, tag_id=tag.pk
+            ) for tag in tags)
 
-            return RecipeTag.objects.create(tag=current_tag, recipe=recipe)
+        return RecipeTag.objects.bulk_create(recipes_tags)
 
     def create_ingredients(self, recipe, ingredients):
-        for ingredient in ingredients:
-            id = ingredient['id'].pk
-            amount = ingredient['amount']
-            current_ingredient = get_object_or_404(Ingredient, id=id)
+        recipes_ingredients = (RecipeIngredient(
+            recipe=recipe,
+            ingredient_id=ingredient['id'].pk,
+            amount=ingredient['amount']) for ingredient in ingredients)
 
-            return RecipeIngredient.objects.create(
-                ingredient=current_ingredient, recipe=recipe, amount=amount)
+        return RecipeIngredient.objects.bulk_create(recipes_ingredients)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tag')
+        tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         self.create_tags(recipe, tags)
         self.create_ingredients(recipe, ingredients)
@@ -138,13 +140,6 @@ class RecipeSerializer(ModelSerializer):
     def to_representation(self, obj):
         data = ReadRecipesSerializer(
             obj, context={'request': self.context.get('request')}).data
-        ingredients = data.get('ingredients')
-        for ingredient in ingredients:
-            ingredient['amount'] = (
-                    RecipeIngredient.objects.get(
-                        recipe=data['id'], ingredient=ingredient['id']
-                        ).amount
-                 )
 
         return data
 
@@ -159,8 +154,24 @@ class RecipeSerializer(ModelSerializer):
 
         return instance
 
+    def validate(self, data):
+        """Проверка: отсутствие в рецепте
+        повторяющихся ингредиентов и тэгов"""
+        tags_ingredients = []
+        for ingredient in data['ingredients']:
+            if ingredient in tags_ingredients:
+                raise ValidationError(
+                    {'Error': 'Вы уже добавляли этот ингредиент'})
+            tags_ingredients.append(ingredient)
+        for tag in data['tags']:
+            if tag in tags_ingredients:
+                raise ValidationError({'Error': 'Вы уже добавляли этот тэг'})
+            tags_ingredients.append(tag)
 
-class ShoppingCartSerialiser(ModelSerializer):
+        return data
+
+
+class ShoppingCartSerializer(ModelSerializer):
     """Сериалайзер для списка покупок"""
     recipe = RecipeSerializer(read_only=True, many=True)
 
@@ -170,21 +181,27 @@ class ShoppingCartSerialiser(ModelSerializer):
 
     def validate(self, data):
         request = self.context['request']
-        recipe_id = self.context.get('view').kwargs.get('recipe_id')
+        user = request.user
+        recipe_id = self.context.get('view').kwargs.get('obj_id')
         recipe = get_object_or_404(Recipe, pk=recipe_id)
+        mod = ShoppingCart.objects.filter(
+                recipe_id=recipe.id,
+                user_id=user)
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(
-                owner=request.user, recipe=recipe
-            ).exists():
-                raise ValidationError(
-                    'Вы уже добавляли этот рецепт в список покупок.')
+            if mod:
+                raise serializers.ValidationError(
+                    'Вы уже добавляли этот рецепт в список покупок')
+        if request.method == 'DELETE':
+            if not mod:
+                raise serializers.ValidationError(
+                    'Вы пытаетесь удалить отсутствующий в списке рецепт')
 
         return data
 
 
-class FavoriteSerialiser(ModelSerializer):
+class FavoriteSerializer(ModelSerializer):
     """Сериализ. для добавления в избранное"""
-    recipe = RecipeSerializer(read_only=True, many=True)
+    recipe = RecipeSerializer(read_only=True)
 
     class Meta:
         model = Favorite
@@ -193,14 +210,17 @@ class FavoriteSerialiser(ModelSerializer):
 
     def validate(self, data):
         request = self.context['request']
-        recipe_id = self.context.get('view').kwargs.get('recipe_id')
+        recipe_id = self.context.get('view').kwargs.get('obj_id')
         recipe = get_object_or_404(Recipe, pk=recipe_id)
+        mod = Favorite.objects.filter(user=request.user, recipe=recipe)
         if request.method == 'POST':
-            if Favorite.objects.filter(
-                owner=request.user, recipe=recipe
-            ).exists():
+            if mod:
+                raise ValidationError(
+                    'Вы уже добавляли этот рецепт в список избранного')
+        if request.method == 'DELETE':
+            if not mod:
                 raise serializers.ValidationError(
-                    'Вы уже добавляли этот рецепт в избранное.')
+                    'Вы пытаетесь удалить отсутствующий в списке рецепт')
 
         return data
 
@@ -287,16 +307,20 @@ class SubscribeSerializer(ModelSerializer):
         return value
 
     def validate(self, data):
-        """Проверка: юзер повторно подписывается
-        на одного и того же автора."""
         request = self.context['request']
-        author_id = self.context.get('view').kwargs.get('user_id')
+        author_id = self.context.get('view').kwargs.get('obj_id')
         author = get_object_or_404(User, pk=author_id)
+        subscribe = Subscribe.objects.filter(
+                user=request.user, author=author)
+        if not author:
+            raise ValidationError('Такого автора не существует')
         if request.method == 'POST':
-            if Subscribe.objects.filter(
-                user=request.user, author=author
-            ).exists():
+            if subscribe:
                 raise ValidationError(
                     'Вы уже подписаны на этого автора.')
+        if request.method == 'DELETE':
+            if not subscribe:
+                raise ValidationError(
+                    'Вы не были подписаны на данного автора')
 
         return data
