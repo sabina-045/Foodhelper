@@ -73,6 +73,9 @@ class Recipe(CreatedModel):
     def __str__(self) -> str:
         return self.name
 
+    def shortText(self):
+        return self.text[:50]
+
 
 class Favorite(models.Model):
     """Класс избранных рецептов."""

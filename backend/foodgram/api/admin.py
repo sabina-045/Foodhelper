@@ -20,7 +20,7 @@ class IngredientInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'author', 'text', 'created',
+    list_display = ('pk', 'name', 'author', 'shortText', 'created',
                     'image', 'cooking_time', 'favorited',)
     inlines = (
        TagInline, IngredientInline,
