@@ -21,7 +21,7 @@ class CreateDestroyViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
     def get_permissions(self):
         if self.action == 'delete':
 
-            return(IsAuthorOnly(),)
+            return (IsAuthorOnly(),)
 
         return super().get_permissions()
 

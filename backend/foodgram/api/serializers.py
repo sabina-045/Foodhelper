@@ -71,12 +71,11 @@ class ReadRecipesSerializer(ModelSerializer):
                   'name', 'image', 'text', 'cooking_time',)
 
     def get_ingredients(self, obj):
-        ingredients = RecipeIngredient.objects.filter(
+
+        return RecipeIngredient.objects.filter(
             recipe=obj).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'amount')
-
-        return ingredients
 
     def get_is_favorited(self, obj):
         """Добавлен ли рецепт в список избранного"""
@@ -136,10 +135,9 @@ class RecipeSerializer(ModelSerializer):
         return recipe
 
     def to_representation(self, obj):
-        data = ReadRecipesSerializer(
-            obj, context={'request': self.context.get('request')}).data
 
-        return data
+        return ReadRecipesSerializer(
+            obj, context={'request': self.context.get('request')}).data
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
