@@ -48,8 +48,8 @@ class RecipesViewSet(ModelViewSet):
         recipe_id = ShoppingCart.objects.values_list('recipe_id')
         ingredients_list = RecipeIngredient.objects.filter(
             recipe_id__in=recipe_id).values_list(
-                    'ingredient__name', 'ingredient__measurement_unit'
-                    ).annotate(Sum('amount'))
+            'ingredient__name', 'ingredient__measurement_unit').annotate(
+            Sum('amount'))
         for ingredient in ingredients_list:
             name = ingredient[0]
             measure = ingredient[1]

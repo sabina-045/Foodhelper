@@ -52,7 +52,7 @@ class AuthorRecipesSerializer(ModelSerializer):
 class IngredientAmountSerializer(serializers.Serializer):
     """Сериализ. для добавления amount в ингредиенты"""
     id = serializers.PrimaryKeyRelatedField(
-            queryset=Ingredient.objects.all(),)
+        queryset=Ingredient.objects.all(),)
     amount = serializers.IntegerField(min_value=1,)
 
 
@@ -74,8 +74,7 @@ class ReadRecipesSerializer(ModelSerializer):
         ingredients = RecipeIngredient.objects.filter(
             recipe=obj).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
-            'amount'
-            )
+            'amount')
 
         return ingredients
 
@@ -115,8 +114,7 @@ class RecipeSerializer(ModelSerializer):
 
     def create_tags(self, recipe, tags):
         recipes_tags = (RecipeTag(
-            recipe=recipe, tag_id=tag.pk
-            ) for tag in tags)
+            recipe=recipe, tag_id=tag.pk) for tag in tags)
 
         return RecipeTag.objects.bulk_create(recipes_tags)
 
@@ -185,8 +183,8 @@ class ShoppingCartSerializer(ModelSerializer):
         recipe_id = self.context.get('view').kwargs.get('obj_id')
         recipe = get_object_or_404(Recipe, pk=recipe_id)
         mod = ShoppingCart.objects.filter(
-                recipe_id=recipe.id,
-                user_id=user)
+            recipe_id=recipe.id,
+            user_id=user)
         if request.method == 'POST':
             if mod:
                 raise serializers.ValidationError(
@@ -241,7 +239,7 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name',
-                  'last_name', 'is_subscribed',  'recipes', 'recipes_count',)
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count',)
 
     def paginated_recipes(self, obj):
         """Пагинация внутри поля рецептов"""
@@ -311,7 +309,7 @@ class SubscribeSerializer(ModelSerializer):
         author_id = self.context.get('view').kwargs.get('obj_id')
         author = get_object_or_404(User, pk=author_id)
         subscribe = Subscribe.objects.filter(
-                user=request.user, author=author)
+            user=request.user, author=author)
         if not author:
             raise ValidationError('Такого автора не существует')
         if request.method == 'POST':
