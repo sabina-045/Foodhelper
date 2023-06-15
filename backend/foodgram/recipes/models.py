@@ -73,7 +73,7 @@ class Recipe(CreatedModel):
     def __str__(self) -> str:
         return self.name
 
-    def shortText(self):
+    def shorttext(self):
         return self.text[:50]
 
 
