@@ -10,9 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key')
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['158.160.19.39', 'localhost', '127.0.0.1', '*', ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -68,7 +68,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', default='foodgram'),
         'USER': os.getenv('POSTGRES_USER', default='sabina'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='PasswordAbsent'),
-        'HOST': os.getenv('DB_HOST', default='localhost'),
+        'HOST': os.getenv('DB_HOST', default='db'),
         'PORT': os.getenv('DB_PORT', default='5432'),
     }
 }
@@ -90,7 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
-    # 'USER_ID_FIELD': 'user_id',
     'SERIALIZERS': {
         'user_create': 'api.serializers.CustomUserCreateSerializer',
         'user': 'api.serializers.CustomUserSerializer',
@@ -126,6 +125,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
     'PAGE_SIZE': 6,
 }
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
