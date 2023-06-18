@@ -62,13 +62,10 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.PASSPHRASE }}
             script: |
-              sudo docker-compose stop
-              sudo docker-compose rm backend
-              sudo docker-compose rm frontend
-              sudo docker image rm sabina045/backend:v1
-              sudo docker image rm sabina045/frontend:v1
               sudo docker pull sabina045/backend:v1
               sudo docker pull sabina045/frontend:v1
+              sudo docker-compose stop
+              sudo docker-compose rm backend
               touch .env
               echo DB_ENGINE=${{ secrets.DB_ENGINE }} > .env
               echo DB_NAME=${{ secrets.DB_NAME }} > .env
