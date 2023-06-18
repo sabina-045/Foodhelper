@@ -12,10 +12,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['158.160.19.39', 'localhost', '127.0.0.1', 'vatrushechki.webhop.me']
+ALLOWED_HOSTS = ['158.160.19.39', 'localhost', '127.0.0.1', 'vatrushechki.webhop.me', '*']
 
 CSRF_TRUSTED_ORIGINS = ['http://*.158.160.19.39', 'http://*.localhost',
-                        'http://*.127.0.0.1', 'http://*.vatrushechki.webhop.me']
+                        'http://*.127.0.0.1', 'http://*.vatrushechki.webhop.me', 'http://*.*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',

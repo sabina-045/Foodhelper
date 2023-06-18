@@ -30,7 +30,6 @@ services:
     image: nginx:1.21.3-alpine
     ports:
       - 80:80
-      - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
@@ -40,19 +39,7 @@ services:
     depends_on:
       - backend
 
-  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    container_name: certbot
-    volumes:
-      - encrypt:/etc/letsencrypt
-      - /var/html
-    command: certonly --webroot --webroot-path=/var/html --email fgytr47@gmail.com --agree-tos -d vatrushechki.webhop.me
-
-
 volumes:
   postgres_value:
   static_value:
   media_value:
-  encrypt:
