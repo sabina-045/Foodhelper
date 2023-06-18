@@ -6,7 +6,7 @@
 
 Проект представляет собой API для проекта Foodgram
 Развернутый проект можно посмотреть по адресу 'http://158.160.19.39/api/recipes/'
-+ Superuser: din
++ Superuser: povelitel
 + Password: mandalor
 
 # FOODGRAM
