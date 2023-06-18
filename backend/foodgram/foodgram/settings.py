@@ -12,7 +12,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['158.160.19.39', 'localhost', '127.0.0.1', '*', ]
+ALLOWED_HOSTS = ['158.160.19.39', 'localhost', '127.0.0.1', ]
+CSRF_TRUSTED_ORIGINS = ['http://*.158.160.19.39', 'http://*.localhost', 'http://*.127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -97,6 +98,7 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
+        'user_create': ['rest_framework.permissions.AllowAny'],
     },
     'HIDE_USERS': False,
 }

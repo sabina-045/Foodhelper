@@ -28,7 +28,7 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrAdminOrReadOnly, )
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
@@ -83,6 +83,7 @@ class TagsViewSet(ListRetrieveViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (ReadOrAdminOnly, )
+    pagination_class = None
 
 
 class IngredientsViewSet(ListRetrieveViewSet):
@@ -91,6 +92,7 @@ class IngredientsViewSet(ListRetrieveViewSet):
     permission_classes = (ReadOrAdminOnly, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
+    pagination_class = None
 
 
 class SubscriptionsViewSet(ListViewSet):

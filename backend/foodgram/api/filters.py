@@ -1,35 +1,43 @@
 import django_filters
+from django.contrib.auth import get_user_model
 
 from recipes.models import Recipe, Tag
 
+User = get_user_model()
+
 
 class RecipeFilter(django_filters.FilterSet):
-
+    author = django_filters.ModelChoiceFilter(
+        queryset=User.objects.all()
+    )
     is_favorited = django_filters.NumberFilter(
         method='get_favorited_queryset'
     )
-    in_shopping_cart = django_filters.NumberFilter(
+    is_in_shopping_cart = django_filters.NumberFilter(
         method='get_shopping_cart_queryset'
     )
     tags = django_filters.ModelMultipleChoiceFilter(
         queryset=Tag.objects.all(),
-        field_name='tag__name',
-        to_field_name='name',
-        conjoined=True,
+        field_name='tags__slug',
+        to_field_name='slug',
     )
+
+    class Meta:
+        model = Recipe
+        fields = ['author', 'tags', ]
 
     def get_favorited_queryset(self, queryset, name, value):
         user = self.request.user
         if value == 1 and not user.is_anonymous:
-            return queryset.filter(favorite_recipe__owner=user)
+
+            return queryset.filter(favorite_recipe__user=user)
+
         return queryset
 
     def get_shopping_cart_queryset(self, queryset, name, value):
         user = self.request.user
         if value == 1 and not user.is_anonymous:
-            return queryset.filter(shopping_recipe__owner=user)
-        return queryset
 
-    class Meta:
-        model = Recipe
-        fields = ['author', 'tags', ]
+            return queryset.filter(shopping_recipe__user=user)
+
+        return queryset
