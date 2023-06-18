@@ -1,11 +1,11 @@
 # ПРОДУКТОВЫЙ ПОМОЩНИК FOODGRAM
 
-![maste](https://github.com/sabina-045/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg?branch=master)
+![master](https://github.com/sabina-045/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg?branch=master)
 
 # Описание
 
 Проект представляет собой API для проекта Foodgram
-Развернутый проект можно посмотреть по адресу 'http://158.160.19.39/api/recipes/'
+Развернутый проект можно посмотреть по адресу 'http://vatrushechki.webhop.me/recipes/'
 + Superuser: povelitel
 + Password: mandalor
 
