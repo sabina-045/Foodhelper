@@ -3,13 +3,15 @@ services:
 
   db:
     image: postgres:13.0-alpine
+    ports:
+      - 5432:5432
     volumes:
       - postgres_value:/var/lib/postgresql/data/
     env_file:
       - ./.env
 
   backend:
-    image: sabina045/foodgram:latest
+    image: sabina045/backend:v1
     restart: always
     volumes:
       - static_value:/app/static/
@@ -20,9 +22,7 @@ services:
       - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: sabina045/frontend:v1
     volumes:
       - ../frontend/:/app/result_build/
 
