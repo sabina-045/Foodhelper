@@ -41,15 +41,13 @@ jobs:
         with:
           push: true
           tags: sabina045/backend:v1
-          context: backend/foodgram
-          file: Dockerfile
+          file: backend/foodgram/Dockerfile
       - name: Push frontend to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: sabina045/frontend:v1
-          context: frontend
-          file: Dockerfile
+          file: frontend/Dockerfile
 
   deploy:
       runs-on: ubuntu-latest
