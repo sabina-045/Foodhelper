@@ -28,9 +28,9 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrAdminOrReadOnly, )
-    filter_backends = (SearchFilter)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
-    search_fields = ('^ingredients__name',)
+    search_fields = ('^ingredients',)
 
     def perform_create(self, serializer):
 

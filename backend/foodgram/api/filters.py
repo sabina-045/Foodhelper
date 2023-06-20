@@ -2,13 +2,19 @@ import django_filters
 from rest_framework import filters
 from django.contrib.auth import get_user_model
 
-from recipes.models import Recipe, Tag
+from recipes.models import Recipe, Tag, Ingredient
 
 User = get_user_model()
 
 
 class SearchFilter(filters.SearchFilter):
     SEARCH_PARAM = 'name'
+# class IngredientFilter(django_filters.FilterSet):
+#     name = django_filters.CharFilter(field_name='name', lookup_expr='startswith')
+
+#     class Meta:
+#         model = Ingredient
+#         fields = ('name',)
 
 
 class RecipeFilter(django_filters.FilterSet):
@@ -26,6 +32,8 @@ class RecipeFilter(django_filters.FilterSet):
         field_name='tags__slug',
         to_field_name='slug',
     )
+    ingredients = django_filters.CharFilter(field_name='ingredients__name',
+                                            lookup_expr='startswith')
 
     class Meta:
         model = Recipe
