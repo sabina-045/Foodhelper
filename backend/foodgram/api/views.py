@@ -11,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscribe
-from .filters import RecipeFilter, SearchFilter
+from .filters import RecipeFilter
 from .mixins import CreateDestroyViewSet, ListRetrieveViewSet, ListViewSet
 from .pagination import CustomPagination
 from .permissions import AuthorOrAdminOrReadOnly, ReadOrAdminOnly, IsAuthorOnly

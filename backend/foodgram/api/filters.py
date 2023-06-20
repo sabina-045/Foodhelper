@@ -1,14 +1,14 @@
 import django_filters
-from rest_framework import filters
+# from rest_framework import filters
 from django.contrib.auth import get_user_model
 
-from recipes.models import Recipe, Tag, Ingredient
+from recipes.models import Recipe, Tag
 
 User = get_user_model()
 
 
-class SearchFilter(filters.SearchFilter):
-    SEARCH_PARAM = 'name'
+# class SearchFilter(filters.SearchFilter):
+#     SEARCH_PARAM = 'name'
 # class IngredientFilter(django_filters.FilterSet):
 #     name = django_filters.CharFilter(field_name='name', lookup_expr='startswith')
 
