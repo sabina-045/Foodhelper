@@ -7,8 +7,6 @@ from recipes.models import Recipe, Tag, Ingredient
 User = get_user_model()
 
 
-# class SearchFilter(filters.SearchFilter):
-#     SEARCH_PARAM = 'name'
 class IngredientFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(
         field_name='name',
