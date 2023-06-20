@@ -1,9 +1,14 @@
 import django_filters
+from rest_framework import filters
 from django.contrib.auth import get_user_model
 
 from recipes.models import Recipe, Tag
 
 User = get_user_model()
+
+
+class SearchFilter(filters.SearchFilter):
+    SEARCH_PARAM = 'name'
 
 
 class RecipeFilter(django_filters.FilterSet):

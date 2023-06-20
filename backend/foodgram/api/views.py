@@ -11,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscribe
-from .filters import RecipeFilter
+from .filters import RecipeFilter, SearchFilter
 from .mixins import CreateDestroyViewSet, ListRetrieveViewSet, ListViewSet
 from .pagination import CustomPagination
 from .permissions import AuthorOrAdminOrReadOnly, ReadOrAdminOnly, IsAuthorOnly
@@ -28,8 +28,9 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrAdminOrReadOnly, )
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (SearchFilter)
     filterset_class = RecipeFilter
+    search_fields = ('^ingredients__name',)
 
     def perform_create(self, serializer):
 
