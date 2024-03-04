@@ -1,10 +1,10 @@
-# ПРОДУКТОВЫЙ ПОМОЩНИК FOODGRAM
+# ПРОДУКТОВЫЙ ПОМОЩНИК FOODHELPER
 
 ![master](https://github.com/sabina-045/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg?branch=master)
 
 # Описание
 
-Проект представляет собой API для проекта Foodgram
+Проект представляет собой API для проекта Foodhelper
 
 # FOODGRAM
 > - это проект с рецептами пользователей, которые можно добавлять в избранное и список покупок. Список покупок доступен к скачиванию.
@@ -23,16 +23,15 @@
 + устанавливаем Docker
 'https://www.docker.com/'
 + клонируем репозиторий:
-`git clone git@github.com:sabina-045/foodgram-project-react.git`
-+ создаем файл `.env` в директории `foodgram/infra/`
-    + заполняем его по образцу:
-    DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
-    DB_NAME=postgres # имя базы данных
-    POSTGRES_USER=postgres # логин для подключения к базе данных
-    POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
-    DB_HOST=localhost # название сервиса (контейнера)
-    DB_PORT=5432 # порт для подключения к БД
-    SECRET_KEY='n&l%385148polhtyn^##a1)icz@4zqj=rq&agdol^##zgl9(vs' # секретный ключ Django
+`git clone git@github.com:sabina-045/foodhelper.git`
++ создаем файл `.env` в директории `foodgram/infra/` и заполняем его по образцу:
+    - DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
+    - DB_NAME=postgres # имя базы данных
+    - POSTGRES_USER=postgres # логин для подключения к базе данных
+    - POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
+    - DB_HOST=localhost # название сервиса (контейнера)
+    - DB_PORT=5432 # порт для подключения к БД
+    - SECRET_KEY='n&l%385148polhtyn^##a1)icz@4zqj=rq&agdol^##zgl9(vs' # секретный ключ Django
 + переходим `cd foodgram/infra/`
     + запускаем docker-compose
     `sudo docker-compose up -d`
